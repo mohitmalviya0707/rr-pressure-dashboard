@@ -1,0 +1,81 @@
+<header>
+  <div class="brand">
+    <div class="logo">PL</div>
+    <div><h1>Pressure Lab <span class="orc">· SupeRR Selector S2</span></h1><div class="sub">Who delivers when it matters? Batting & bowling under pressure vs usual level · IPL + official T20I 2022–26 · no-result games and super overs excluded</div></div>
+  </div>
+  <div class="hdr-right" id="hdrChips"></div>
+</header>
+<nav class="tabs" id="tabs">
+  <button data-tab="overview" class="on">Pressure definition</button>
+  <button data-tab="bat">Batters</button>
+  <button data-tab="bowl">Bowlers</button>
+  <button data-tab="robust">Reliability & robustness</button>
+  <button data-tab="mine">My Top 10s <span class="n" id="nPicks">0</span></button>
+  <button data-tab="method">Method & export</button>
+</nav>
+<main>
+<aside>
+  <h2 class="sec">Data scope</h2>
+  <div class="tagrow"><label><input type="checkbox" id="fIPL" checked> IPL</label> <label><input type="checkbox" id="fT20I" checked> T20I</label> </div>
+  <label class="ctl">Innings</label>
+  <select id="innF"><option value="0">Both innings</option><option value="2">Chases only</option><option value="1">Batting first only</option></select>
+  <label class="ctl">From season</label>
+  <select id="fromYr"><option>2022</option><option>2023</option><option>2024</option><option>2025</option><option>2026</option></select>
+
+  <h2 class="sec">Pressure definition</h2>
+  <select id="pdef">
+    <option value="levabs">C · Leverage, one threshold across all balls (primary; chase-heavy)</option>
+    <option value="lev2in">A · Leverage, threshold per match innings</option>
+    <option value="lev2inn">B · Leverage, threshold per innings number</option>
+    <option value="levvol">Leverage incl. phase volatility, one threshold</option>
+    <option value="comp">Composite index (your weights), one threshold</option>
+  </select>
+  <label class="ctl">Pressure = top % of deliveries <b id="v_topPct"></b></label>
+  <input type="range" id="topPct" min="5" max="50" step="1" value="25">
+  <label class="ctl">Exclude decided states (WP below / above) <b id="v_decided"></b></label>
+  <input type="range" id="decided" min="0" max="0.15" step="0.01" value="0.02">
+  <div id="compBox" style="display:none">
+    <div class="note" style="margin:6px 0">Composite weights (0–1 each; components scaled 0–1)</div>
+    <label class="ctl">Leverage (within-innings pct) <b id="v_cLev"></b></label><input type="range" id="cLev" min="0" max="1" step="0.05" value="0.4">
+    <label class="ctl">Closeness (WP near 50%) <b id="v_cClose"></b></label><input type="range" id="cClose" min="0" max="1" step="0.05" value="0.2">
+    <label class="ctl">Required-rate gap (chases) <b id="v_cRRR"></b></label><input type="range" id="cRRR" min="0" max="1" step="0.05" value="0.15">
+    <label class="ctl">Wickets down <b id="v_cWkt"></b></label><input type="range" id="cWkt" min="0" max="1" step="0.05" value="0.1">
+    <label class="ctl">Death overs <b id="v_cDeath"></b></label><input type="range" id="cDeath" min="0" max="1" step="0.05" value="0.1">
+    <label class="ctl">Knockout match <b id="v_cKO"></b></label><input type="range" id="cKO" min="0" max="1" step="0.05" value="0.05">
+  </div>
+
+  <h2 class="sec">Fair comparison</h2>
+  <label class="ctl">Opponent-strength adjustment</label>
+  <select id="opp"><option value="1">On (recommended)</option><option value="0">Off</option></select>
+  <label class="ctl">Bowler runs conceded</label>
+  <select id="bowlRuns"><option value="recon">Reconstructed: bat runs + 1 per wide/no-ball (lower bound)</option><option value="bat">Runs off the bat only (verified field)</option></select>
+  <label class="ctl">Shrinkage</label>
+  <select id="kMode"><option value="auto">Empirical Bayes (estimated from data)</option><option value="man">Manual</option></select>
+  <div id="kBox" style="display:none"><label class="ctl">k (balls of prior) <b id="v_kMan"></b></label><input type="range" id="kMan" min="0" max="1500" step="25" value="400"></div>
+  <label class="ctl">Min pressure balls faced (batters) <b id="v_minBat"></b></label>
+  <input type="range" id="minBat" min="30" max="500" step="10" value="120">
+  <label class="ctl">Min pressure balls bowled (bowlers) <b id="v_minBowl"></b></label>
+  <input type="range" id="minBowl" min="30" max="500" step="10" value="120">
+  <label class="ctl">Min matches with ≥4 pressure balls <b id="v_minM"></b></label>
+  <input type="range" id="minM" min="1" max="30" step="1" value="8">
+
+  <h2 class="sec">Rating weights</h2>
+  <label class="ctl">Pressure performance level <b id="v_wL"></b></label><input type="range" id="wL" min="0" max="1" step="0.05" value="0.6">
+  <label class="ctl">Consistency across matches <b id="v_wC"></b></label><input type="range" id="wC" min="0" max="1" step="0.05" value="0.25">
+  <label class="ctl">Lift vs own usual level <b id="v_wD"></b></label><input type="range" id="wD" min="0" max="1" step="0.05" value="0.15">
+  <label class="ctl">Win probability added <b id="v_wW"></b></label><input type="range" id="wW" min="0" max="1" step="0.05" value="0">
+  <div class="row" style="margin-top:10px"><button class="sm" onclick="resetDefaults()">Reset defaults</button></div>
+</aside>
+<section class="content">
+  <div id="globalBanner"></div>
+  <div class="kpis" id="kpis"></div>
+  <div id="tab_overview"></div>
+  <div id="tab_bat" style="display:none"></div>
+  <div id="tab_bowl" style="display:none"></div>
+  <div id="tab_robust" style="display:none"></div>
+  <div id="tab_mine" style="display:none"></div>
+  <div id="tab_method" style="display:none"></div>
+</section>
+</main>
+<div id="drawer"></div>
+<div id="report"></div>

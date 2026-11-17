@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reliable Under Pressure · Mohit Malviya</title>
+<meta name="description" content="Who performs best when the match is on the line? IPL + T20I batters and bowlers ranked on high-leverage moments. SupeRR Selector Season 2, Round 1.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">SupeRR Selector Season 2 · Round 1</p>
+    <h1>Reliable Under Pressure</h1>
+    <p class="by">Mohit Malviya · <a href="mailto:mohitmalviya0107@gmail.com">mohitmalviya0107@gmail.com</a></p>
+    <p class="lead" id="lead"></p>
+  </div>
+  <nav class="tabs wrap" id="tabs" role="tablist">
+    <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button role="tab" data-tab="clutch">Clutch map</button>
+    <button role="tab" data-tab="lab">Model lab</button>
+    <button role="tab" data-tab="player">Player profile</button>
+    <button role="tab" data-tab="compare">Head to head</button>
+    <button role="tab" data-tab="robust">Robustness</button>
+    <button role="tab" data-tab="method">Method</button>
+  </nav>
+</header>
+
+<main class="wrap">
+  <!-- OVERVIEW -->
+  <section id="overview" class="page">
+    <div class="tiles" id="tiles"></div>
+    <div class="card">
+      <h2>Top 10 batters under pressure</h2>
+      <p class="sub">Click a row for the full profile. Level = runs above an average player per 100 pressure balls. Stable = share of 600 alternative settings where he stays top 10.</p>
+      <div class="scroll"><table class="tbl" id="batTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>Top 10 bowlers under pressure</h2>
+      <p class="sub">Level = runs saved vs an average bowler per 24 pressure balls. Economy is approximate (size of wides is not recorded).</p>
+      <div class="scroll"><table class="tbl" id="bowlTable"></table></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Where pressure happens</h2>
+        <p class="sub">Share of balls in each over that count as pressure balls, chasing vs batting first.</p>
+        <div class="chart" id="overChart"></div>
+      </div>
+      <div class="card">
+        <h2>Is the win-probability model honest?</h2>
+        <p class="sub">Predicted vs actual win rate in chases, on matches the model never saw (5-fold, grouped by match).</p>
+        <div class="chart" id="calChart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLUTCH MAP -->
+  <section id="clutch" class="page" hidden>
+    <div class="card">
+      <div class="row">
+        <div>
+          <h2>Clutch map: usual level vs pressure level</h2>
+          <p class="sub">Every eligible player. Above the dashed line = better under pressure than usual. Top-right = elite all the time. Click a dot for the profile.</p>
+        </div>
+        <div class="controls">
+          <select id="clutchKind"><option value="Batter">Batters</option><option value="Bowler">Bowlers</option></select>
+          <input id="clutchSearch" type="search" placeholder="Find a player…" list="allNames">
+        </div>
+      </div>
+      <div class="key"><span><i class="sw sel"></i>My top 10</span><span><i class="sw"></i>Other eligible</span><span><i class="sw ring"></i>Search match</span></div>
+      <div class="chart tall" id="clutchChart"></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Biggest risers under pressure</h3><p class="sub">Largest lift over their own usual level (min. 200 pressure balls).</p><ol class="list" id="risers"></ol></div>
+      <div class="card"><h3>Biggest drop under pressure</h3><p class="sub">Good normally, weaker when it matters (min. 200 pressure balls).</p><ol class="list" id="fallers"></ol></div>
+    </div>
+  </section>
+
+  <!-- MODEL LAB -->
+  <section id="lab" class="page" hidden>
+    <div class="grid-lab">
+      <div class="card">
+        <h2>Build your own ranking</h2>
+        <p class="sub">Change what matters and the ranking updates instantly. At the default settings it reproduces my primary model exactly.</p>
+        <label class="ctl">List <select id="labKind"><option value="Batter">Batters</option><option value="Bowler">Bowlers</option></select></label>
+        <label class="ctl">Pressure level weight <b id="wLv"></b><input type="range" id="wL" min="0" max="100" value="60"></label>
+        <label class="ctl">Consistency weight <b id="wCv"></b><input type="range" id="wC" min="0" max="100" value="25"></label>
+        <label class="ctl">Lift vs usual weight <b id="wDv"></b><input type="range" id="wD" min="0" max="100" value="15"></label>
+        <label class="ctl">Minimum pressure balls <b id="minBv"></b><input type="range" id="minB" min="120" max="400" step="10" value="120"></label>
+        <label class="ctl">Minimum matches <b id="minMv"></b><input type="range" id="minM" min="8" max="25" value="8"></label>
+        <div class="btns"><button id="labReset" class="btn">Reset to my model</button></div>
+        <p class="badge" id="labBadge"></p>
+      </div>
+      <div class="card">
+        <h2>Your top 15</h2>
+        <p class="sub"><span id="labOverlap"></span> Pink = in my final top 10.</p>
+        <div class="scroll"><table class="tbl" id="labTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAYER PROFILE -->
+  <section id="player" class="page" hidden>
+    <div class="card">
+      <div class="row">
+        <h2 id="pName">Player profile</h2>
+        <input id="pSearch" type="search" placeholder="Search any eligible player…" list="allNames">
+      </div>
+      <p class="sub" id="pMeta"></p>
+      <div class="tiles" id="pTiles"></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Pressure vs usual</h3><div class="chart" id="pBars"></div></div>
+      <div class="card"><h3>Rank in 10 alternative settings</h3><p class="sub">1 = best. Grey = not eligible in that setting.</p><div class="chart" id="pScen"></div></div>
+    </div>
+    <div class="card" id="pDetail"></div>
+  </section>
+
+  <!-- HEAD TO HEAD -->
+  <section id="compare" class="page" hidden>
+    <div class="card">
+      <h2>Head to head</h2>
+      <p class="sub">Pick two players of the same kind. Bars show each player's percentile among all eligible players (100 = best).</p>
+      <div class="row">
+        <input id="cA" type="search" list="allNames" placeholder="Player A">
+        <span class="vs">vs</span>
+        <input id="cB" type="search" list="allNames" placeholder="Player B">
+      </div>
+      <div class="chart" id="cChart"></div>
+      <p class="sub" id="cNote"></p>
+    </div>
+  </section>
+
+  <!-- ROBUSTNESS -->
+  <section id="robust" class="page" hidden>
+    <div class="card">
+      <div class="row">
+        <div><h2>Do the picks survive different assumptions?</h2><p class="sub">Rank of each pick when one setting is changed. Green = top 10, yellow = 11–20, red = below 20, grey = not eligible.</p></div>
+        <select id="robKind"><option value="Batter">Batters</option><option value="Bowler">Bowlers</option></select>
+      </div>
+      <div class="scroll"><table class="tbl heat" id="robTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>Stability across 600 settings</h2>
+      <p class="sub">Selection score: half reliability-weighted share of all 600 settings in the top 10, half share under the main definition. Top 15 shown.</p>
+      <div class="chart" id="stabChart"></div>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section id="method" class="page" hidden>
+    <div class="card prose">
+      <h2>How it works</h2>
+      <ol>
+        <li><b>Clean the data.</b> IPL and official T20I only (2022–26). No-result matches, DLS games without a revised target and super overs removed.</li>
+        <li><b>Win probability.</b> A ball-by-ball Markov model, built separately for IPL and T20I, gives each side's chance of winning from any score, wickets and balls left. Tested on held-out matches: chase AUC <b id="mAuc"></b>.</li>
+        <li><b>Pressure.</b> For every ball, how much could the result swing? The top 25% of balls by that swing are pressure balls, leaving out games already decided.</li>
+        <li><b>Performance vs expectation.</b> Each run and wicket is compared with an average player in the same format, innings, over, wickets and pressure band, adjusted for the opposition. A wicket is worth its run value at that moment.</li>
+        <li><b>Fair comparison.</b> Small samples are pulled toward average (empirical Bayes). Eligibility: at least 120 pressure balls and 8 matches.</li>
+        <li><b>Rating.</b> 60% pressure level, 25% match-to-match consistency, 15% lift over own usual level (try it in the Model lab).</li>
+        <li><b>Stress test.</b> The full model was re-run under 600 alternative settings. The final top 10s are the players who stay near the top most often, weighting each setting by how repeatable it proved.</li>
+        <li><b>Audit.</b> Separate code recomputed the whole pipeline. <b id="mAudit"></b> checks were executed and all passed.</li>
+      </ol>
+      <h3>Limits</h3>
+      <ul>
+        <li>The main pressure definition is chase-heavy; batting-first pressure is covered by the alternative settings.</li>
+        <li>Size of wides and byes is not recorded, so bowler economy is approximate. Runs off the bat, balls and wickets are exact.</li>
+        <li>Repeatability is real but modest (ρ <b id="mRho"></b>), so ranks a few places apart are statistically similar.</li>
+        <li>Fakhar Zaman, Mohammad Nawaz and Abrar Ahmed are ranked on the data, but Pakistan players have not played the IPL since 2008.</li>
+      </ul>
+      <p class="sub">Only summary results are published here. The ball-by-ball competition data is not included.</p>
+    </div>
+  </section>
+
+  <datalist id="allNames"></datalist>
+  <footer class="foot">© 2026 Mohit Malviya · Built for SupeRR Selector Season 2</footer>
+</main>
+<div class="tip" id="tip" hidden></div>
+<script src="vendor/d3.min.js"></script>
+<script src="data/results.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Never commit the competition data pack or anything generated from it
+*.zip
+out/
+analysis/out/
+**/ball_by_ball.csv
+**/matches.csv
+**/playing_eleven.csv
+**/competition_team_player_mapping.csv
+**/competitions.csv
+**/teams.csv
+**/balls_prepped.csv
+**/pressure_data.json
+**/PressureLab.html
+__pycache__/
